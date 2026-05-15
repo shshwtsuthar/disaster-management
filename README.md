@@ -1,3 +1,0 @@
-# disaster-management
-new data
-
