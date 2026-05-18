@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 
 const ROLES = [
@@ -458,12 +459,12 @@ export default function ReliefWorkerRegistration() {
 
                 <p className="text-center text-sm text-white/50">
                   Already have an account?{" "}
-                  <a
+                  <Link
                     href="/login"
                     className="font-medium text-cyan-400 transition hover:text-cyan-300"
                   >
                     Login
-                  </a>
+                  </Link>
                 </p>
               </form>
             </div>
