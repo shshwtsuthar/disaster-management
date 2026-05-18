@@ -1,5 +1,6 @@
 import Image from "next/image";
 import TopBar from "@/components/TopBar";
+import ReliefWorkerRegistration from "@/components/ReliefWorkerRegistration";
 
 export default function Home() {
   return (
@@ -63,6 +64,7 @@ export default function Home() {
           </a>
         </div>
       </main>
+      <ReliefWorkerRegistration />
     </div>
   );
 }
