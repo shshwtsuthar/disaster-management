@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { IndiaMapCard } from "@/components/IndiaMapCard";
 import { AUTH_ROUTES } from "@/lib/auth/routes";
 import { signOut } from "@/lib/auth/actions";
 import { createClient } from "@/lib/supabase/server";
@@ -76,6 +77,8 @@ export default async function DashboardPage() {
           </div>
         </dl>
       </section>
+
+      <IndiaMapCard />
     </div>
   );
 }
