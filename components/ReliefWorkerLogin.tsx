@@ -1,7 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useActionState, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { AUTH_ROUTES } from "@/lib/auth/routes";
+import { signIn, type AuthActionState } from "@/lib/auth/actions";
 
 function IconAt({ className }: { className?: string }) {
   return (
@@ -55,14 +58,13 @@ function FieldIcon({ children }: { children: React.ReactNode }) {
   );
 }
 
-export default function ReliefWorkerLogin() {
-  const [usernameOrEmail, setUsernameOrEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
+const initialState: AuthActionState = {};
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-  };
+export default function ReliefWorkerLogin() {
+  const searchParams = useSearchParams();
+  const next = searchParams.get("next") ?? AUTH_ROUTES.dashboard;
+  const [state, formAction, isPending] = useActionState(signIn, initialState);
+  const [showPassword, setShowPassword] = useState(false);
 
   return (
     <div className="relative min-h-screen overflow-hidden font-sans">
@@ -109,83 +111,91 @@ export default function ReliefWorkerLogin() {
           aria-label="Login"
         >
           <div className="p-6 sm:p-8">
-              <form onSubmit={handleSubmit} className="space-y-5">
-                <label htmlFor="usernameOrEmail" className="block">
-                  <span className="mb-1.5 block text-xs font-medium tracking-wide text-white/70">
-                    Username / Email
-                  </span>
-                  <p className="mb-2 text-xs text-white/45">
-                    Use your registered username or email address
-                  </p>
-                  <div className="relative">
-                    <FieldIcon>
-                      <IconAt className="h-4 w-4" />
-                    </FieldIcon>
-                    <input
-                      id="usernameOrEmail"
-                      name="usernameOrEmail"
-                      type="text"
-                      autoComplete="username"
-                      required
-                      placeholder="Enter username or email"
-                      value={usernameOrEmail}
-                      onChange={(e) => setUsernameOrEmail(e.target.value)}
-                      className="w-full rounded-xl border border-white/10 bg-white/5 py-2.5 pl-11 pr-4 text-sm text-white placeholder:text-white/30 outline-none transition focus:border-cyan-400/50 focus:bg-white/[0.08] focus:ring-2 focus:ring-cyan-500/20"
-                    />
-                  </div>
-                </label>
+            <form action={formAction} className="space-y-5">
+              <input type="hidden" name="next" value={next} />
 
-                <label htmlFor="password" className="block">
-                  <span className="mb-1.5 block text-xs font-medium tracking-wide text-white/70">
-                    Password
-                  </span>
-                  <div className="relative">
-                    <FieldIcon>
-                      <IconLock className="h-4 w-4" />
-                    </FieldIcon>
-                    <input
-                      id="password"
-                      name="password"
-                      type={showPassword ? "text" : "password"}
-                      autoComplete="current-password"
-                      required
-                      placeholder="••••••••"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="w-full rounded-xl border border-white/10 bg-white/5 py-2.5 pl-11 pr-12 text-sm text-white placeholder:text-white/30 outline-none transition focus:border-cyan-400/50 focus:bg-white/[0.08] focus:ring-2 focus:ring-cyan-500/20"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword((v) => !v)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 rounded-md p-1 text-white/50 transition hover:text-cyan-400 focus:outline-none focus:ring-2 focus:ring-cyan-500/30"
-                      aria-label={showPassword ? "Hide password" : "Show password"}
-                    >
-                      {showPassword ? (
-                        <IconEyeOff className="h-4 w-4" />
-                      ) : (
-                        <IconEye className="h-4 w-4" />
-                      )}
-                    </button>
-                  </div>
-                </label>
-
-                <button
-                  type="submit"
-                  className="w-full rounded-xl bg-gradient-to-r from-cyan-500 to-cyan-600 py-4 text-base font-semibold tracking-wide text-white shadow-lg shadow-cyan-500/25 transition hover:from-cyan-400 hover:to-cyan-500 hover:shadow-cyan-500/40 focus:outline-none focus:ring-2 focus:ring-cyan-400/50 focus:ring-offset-2 focus:ring-offset-slate-900"
+              {state.error ? (
+                <p
+                  role="alert"
+                  className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200"
                 >
-                  Login to Emergency Portal
-                </button>
-
-                <p className="text-center text-sm text-white/50">
-                  Don&apos;t have an account?{" "}
-                  <Link
-                    href="/"
-                    className="font-medium text-cyan-400 transition hover:text-cyan-300"
-                  >
-                    Register
-                  </Link>
+                  {state.error}
                 </p>
-              </form>
+              ) : null}
+
+              <label htmlFor="usernameOrEmail" className="block">
+                <span className="mb-1.5 block text-xs font-medium tracking-wide text-white/70">
+                  Username / Email
+                </span>
+                <p className="mb-2 text-xs text-white/45">
+                  Use your registered username or email address
+                </p>
+                <div className="relative">
+                  <FieldIcon>
+                    <IconAt className="h-4 w-4" />
+                  </FieldIcon>
+                  <input
+                    id="usernameOrEmail"
+                    name="usernameOrEmail"
+                    type="text"
+                    autoComplete="username"
+                    required
+                    placeholder="Enter username or email"
+                    className="w-full rounded-xl border border-white/10 bg-white/5 py-2.5 pl-11 pr-4 text-sm text-white placeholder:text-white/30 outline-none transition focus:border-cyan-400/50 focus:bg-white/[0.08] focus:ring-2 focus:ring-cyan-500/20"
+                  />
+                </div>
+              </label>
+
+              <label htmlFor="password" className="block">
+                <span className="mb-1.5 block text-xs font-medium tracking-wide text-white/70">
+                  Password
+                </span>
+                <div className="relative">
+                  <FieldIcon>
+                    <IconLock className="h-4 w-4" />
+                  </FieldIcon>
+                  <input
+                    id="password"
+                    name="password"
+                    type={showPassword ? "text" : "password"}
+                    autoComplete="current-password"
+                    required
+                    placeholder="••••••••"
+                    className="w-full rounded-xl border border-white/10 bg-white/5 py-2.5 pl-11 pr-12 text-sm text-white placeholder:text-white/30 outline-none transition focus:border-cyan-400/50 focus:bg-white/[0.08] focus:ring-2 focus:ring-cyan-500/20"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((v) => !v)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 rounded-md p-1 text-white/50 transition hover:text-cyan-400 focus:outline-none focus:ring-2 focus:ring-cyan-500/30"
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                  >
+                    {showPassword ? (
+                      <IconEyeOff className="h-4 w-4" />
+                    ) : (
+                      <IconEye className="h-4 w-4" />
+                    )}
+                  </button>
+                </div>
+              </label>
+
+              <button
+                type="submit"
+                disabled={isPending}
+                className="w-full rounded-xl bg-gradient-to-r from-cyan-500 to-cyan-600 py-4 text-base font-semibold tracking-wide text-white shadow-lg shadow-cyan-500/25 transition hover:from-cyan-400 hover:to-cyan-500 hover:shadow-cyan-500/40 focus:outline-none focus:ring-2 focus:ring-cyan-400/50 focus:ring-offset-2 focus:ring-offset-slate-900 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {isPending ? "Signing in…" : "Login to Emergency Portal"}
+              </button>
+
+              <p className="text-center text-sm text-white/50">
+                Don&apos;t have an account?{" "}
+                <Link
+                  href={AUTH_ROUTES.register}
+                  className="font-medium text-cyan-400 transition hover:text-cyan-300"
+                >
+                  Register
+                </Link>
+              </p>
+            </form>
           </div>
         </div>
       </div>

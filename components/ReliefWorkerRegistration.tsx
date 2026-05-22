@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useActionState, useMemo, useState } from "react";
+import { AUTH_ROUTES } from "@/lib/auth/routes";
+import { signUp, type AuthActionState } from "@/lib/auth/actions";
 
 const ROLES = [
   "Rescue Worker",
@@ -203,7 +205,10 @@ function InstructionBlock({
   );
 }
 
+const initialState: AuthActionState = {};
+
 export default function ReliefWorkerRegistration() {
+  const [state, formAction, isPending] = useActionState(signUp, initialState);
   const [form, setForm] = useState({
     fullName: "",
     username: "",
@@ -226,13 +231,14 @@ export default function ReliefWorkerRegistration() {
     setForm((prev) => ({ ...prev, [key]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     if (form.password !== form.confirmPassword) {
+      e.preventDefault();
       alert("Passwords do not match.");
       return;
     }
     if (!form.agreed) {
+      e.preventDefault();
       alert("Please agree to the emergency response data policies.");
       return;
     }
@@ -284,7 +290,16 @@ export default function ReliefWorkerRegistration() {
         >
           <div className="grid lg:grid-cols-[1.15fr_0.85fr]">
             <div className="border-b border-white/10 p-6 sm:p-8 lg:border-r lg:border-b-0">
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form action={formAction} onSubmit={handleSubmit} className="space-y-4">
+                {state.error ? (
+                  <p
+                    role="alert"
+                    className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200"
+                  >
+                    {state.error}
+                  </p>
+                ) : null}
+
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="sm:col-span-2">
                     <InputField
@@ -452,15 +467,16 @@ export default function ReliefWorkerRegistration() {
 
                 <button
                   type="submit"
-                  className="w-full rounded-xl bg-gradient-to-r from-cyan-500 to-cyan-600 py-3.5 text-sm font-semibold tracking-wide text-white shadow-lg shadow-cyan-500/25 transition hover:from-cyan-400 hover:to-cyan-500 hover:shadow-cyan-500/40 focus:outline-none focus:ring-2 focus:ring-cyan-400/50 focus:ring-offset-2 focus:ring-offset-slate-900"
+                  disabled={isPending}
+                  className="w-full rounded-xl bg-gradient-to-r from-cyan-500 to-cyan-600 py-3.5 text-sm font-semibold tracking-wide text-white shadow-lg shadow-cyan-500/25 transition hover:from-cyan-400 hover:to-cyan-500 hover:shadow-cyan-500/40 focus:outline-none focus:ring-2 focus:ring-cyan-400/50 focus:ring-offset-2 focus:ring-offset-slate-900 disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  Register as Relief Worker
+                  {isPending ? "Creating account…" : "Register as Relief Worker"}
                 </button>
 
                 <p className="text-center text-sm text-white/50">
                   Already have an account?{" "}
                   <Link
-                    href="/login"
+                    href={AUTH_ROUTES.login}
                     className="font-medium text-cyan-400 transition hover:text-cyan-300"
                   >
                     Login
