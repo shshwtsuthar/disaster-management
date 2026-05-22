@@ -4,6 +4,7 @@ import "leaflet/dist/leaflet.css";
 
 import { MapContainer, TileLayer } from "react-leaflet";
 
+import { EonetEventsLayer } from "@/components/EonetEventsLayer";
 import {
   INDIA_BOUNDS,
   INDIA_CENTER,
@@ -11,11 +12,21 @@ import {
   INDIA_MAX_ZOOM,
   INDIA_MIN_ZOOM,
 } from "@/lib/map/india-bounds";
+import {
+  EMPTY_EONET_EVENTS,
+  normalizeEonetEvents,
+  type EonetFeatureCollection,
+} from "@/lib/map/eonet";
 
 const OSM_ATTRIBUTION =
   '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
 
-export const IndiaMap = () => {
+type IndiaMapProps = {
+  events?: EonetFeatureCollection | null;
+};
+
+export const IndiaMap = ({ events: eventsProp }: IndiaMapProps) => {
+  const events = normalizeEonetEvents(eventsProp ?? EMPTY_EONET_EVENTS);
   return (
     <MapContainer
       center={INDIA_CENTER}
@@ -31,6 +42,7 @@ export const IndiaMap = () => {
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         attribution={OSM_ATTRIBUTION}
       />
+      <EonetEventsLayer events={events} />
     </MapContainer>
   );
 };
