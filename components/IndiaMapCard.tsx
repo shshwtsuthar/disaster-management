@@ -8,6 +8,11 @@ import {
   normalizeEonetEvents,
   type EonetFeatureCollection,
 } from "@/lib/map/eonet";
+import {
+  EMPTY_GDACS_EVENTS,
+  normalizeGdacsEvents,
+  type GdacsFeatureCollection,
+} from "@/lib/map/gdacs";
 
 const IndiaMap = dynamic(
   () => import("@/components/IndiaMap").then((mod) => mod.IndiaMap),
@@ -23,14 +28,17 @@ const IndiaMap = dynamic(
 );
 
 type IndiaMapCardProps = {
-  events?: EonetFeatureCollection | null;
+  eonetEvents?: EonetFeatureCollection | null;
+  gdacsEvents?: GdacsFeatureCollection | null;
 };
 
 export const IndiaMapCard = ({
-  events: eventsProp,
+  eonetEvents: eonetProp,
+  gdacsEvents: gdacsProp,
 }: IndiaMapCardProps) => {
-  const events = normalizeEonetEvents(eventsProp ?? EMPTY_EONET_EVENTS);
-  const eventCount = events.features.length;
+  const eonet = normalizeEonetEvents(eonetProp ?? EMPTY_EONET_EVENTS);
+  const gdacs = normalizeGdacsEvents(gdacsProp ?? EMPTY_GDACS_EVENTS);
+  const totalCount = eonet.features.length + gdacs.features.length;
 
   return (
     <section
@@ -44,12 +52,12 @@ export const IndiaMapCard = ({
         Operations map
       </h2>
       <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-        {eventCount > 0
-          ? `${eventCount} open disaster event${eventCount === 1 ? "" : "s"} in the region (NASA EONET).`
-          : "No open disaster events in the region right now. Data from NASA EONET."}
+        {totalCount > 0
+          ? `${totalCount} open disaster event${totalCount === 1 ? "" : "s"} in the region (NASA EONET + GDACS).`
+          : "No open disaster events in the region right now. Data from NASA EONET & GDACS."}
       </p>
       <div className="mt-4 h-80 overflow-hidden rounded-xl border border-zinc-200 dark:border-zinc-800 [&_.leaflet-container]:rounded-xl">
-        <IndiaMap events={events} />
+        <IndiaMap eonetEvents={eonet} gdacsEvents={gdacs} />
       </div>
       <MapLegend />
       <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-500">

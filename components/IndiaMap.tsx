@@ -5,6 +5,7 @@ import "leaflet/dist/leaflet.css";
 import { MapContainer, TileLayer } from "react-leaflet";
 
 import { EonetEventsLayer } from "@/components/EonetEventsLayer";
+import { GdacsEventsLayer } from "@/components/GdacsEventsLayer";
 import {
   INDIA_BOUNDS,
   INDIA_CENTER,
@@ -17,16 +18,27 @@ import {
   normalizeEonetEvents,
   type EonetFeatureCollection,
 } from "@/lib/map/eonet";
+import {
+  EMPTY_GDACS_EVENTS,
+  normalizeGdacsEvents,
+  type GdacsFeatureCollection,
+} from "@/lib/map/gdacs";
 
 const OSM_ATTRIBUTION =
   '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
 
 type IndiaMapProps = {
-  events?: EonetFeatureCollection | null;
+  eonetEvents?: EonetFeatureCollection | null;
+  gdacsEvents?: GdacsFeatureCollection | null;
 };
 
-export const IndiaMap = ({ events: eventsProp }: IndiaMapProps) => {
-  const events = normalizeEonetEvents(eventsProp ?? EMPTY_EONET_EVENTS);
+export const IndiaMap = ({
+  eonetEvents: eonetProp,
+  gdacsEvents: gdacsProp,
+}: IndiaMapProps) => {
+  const eonet = normalizeEonetEvents(eonetProp ?? EMPTY_EONET_EVENTS);
+  const gdacs = normalizeGdacsEvents(gdacsProp ?? EMPTY_GDACS_EVENTS);
+
   return (
     <MapContainer
       center={INDIA_CENTER}
@@ -42,7 +54,8 @@ export const IndiaMap = ({ events: eventsProp }: IndiaMapProps) => {
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         attribution={OSM_ATTRIBUTION}
       />
-      <EonetEventsLayer events={events} />
+      <EonetEventsLayer events={eonet} />
+      <GdacsEventsLayer events={gdacs} />
     </MapContainer>
   );
 };
