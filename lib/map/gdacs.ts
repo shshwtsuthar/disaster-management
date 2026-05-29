@@ -147,6 +147,7 @@ export const getGdacsMarkerStyle = (eventType: string) => {
 export const formatGdacsType = (eventType: string): string => {
   const map: Record<string, string> = {
     TC: "Tropical Cyclone",
+    TS: "Tsunami",
     FL: "Flood",
     EQ: "Earthquake",
     WF: "Wildfire",

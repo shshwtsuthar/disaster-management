@@ -6,6 +6,7 @@ import { MapContainer, TileLayer } from "react-leaflet";
 
 import { EonetEventsLayer } from "@/components/EonetEventsLayer";
 import { GdacsEventsLayer } from "@/components/GdacsEventsLayer";
+import { HistoricalGdacsEventsLayer } from "@/components/HistoricalGdacsEventsLayer";
 import {
   INDIA_BOUNDS,
   INDIA_CENTER,
@@ -30,14 +31,19 @@ const OSM_ATTRIBUTION =
 type IndiaMapProps = {
   eonetEvents?: EonetFeatureCollection | null;
   gdacsEvents?: GdacsFeatureCollection | null;
+  historicalGdacsEvents?: GdacsFeatureCollection | null;
 };
 
 export const IndiaMap = ({
   eonetEvents: eonetProp,
   gdacsEvents: gdacsProp,
+  historicalGdacsEvents: historicalGdacsProp,
 }: IndiaMapProps) => {
   const eonet = normalizeEonetEvents(eonetProp ?? EMPTY_EONET_EVENTS);
   const gdacs = normalizeGdacsEvents(gdacsProp ?? EMPTY_GDACS_EVENTS);
+  const historicalGdacs = normalizeGdacsEvents(
+    historicalGdacsProp ?? EMPTY_GDACS_EVENTS,
+  );
 
   return (
     <MapContainer
@@ -54,6 +60,7 @@ export const IndiaMap = ({
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         attribution={OSM_ATTRIBUTION}
       />
+      <HistoricalGdacsEventsLayer events={historicalGdacs} />
       <EonetEventsLayer events={eonet} />
       <GdacsEventsLayer events={gdacs} />
     </MapContainer>
