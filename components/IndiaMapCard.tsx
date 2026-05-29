@@ -21,7 +21,7 @@ const IndiaMap = dynamic(
     ssr: false,
     loading: () => (
       <div
-        className="h-full w-full animate-pulse rounded-xl bg-zinc-100 dark:bg-zinc-900"
+        className="h-full w-full animate-pulse rounded-xl bg-slate-800/80"
         aria-hidden
       />
     ),
@@ -72,12 +72,14 @@ type IndiaMapCardProps = {
   eonetEvents?: EonetFeatureCollection | null;
   gdacsEvents?: GdacsFeatureCollection | null;
   historicalGdacsEvents?: GdacsFeatureCollection | null;
+  layout?: "standalone" | "embedded";
 };
 
 export const IndiaMapCard = ({
   eonetEvents: eonetProp,
   gdacsEvents: gdacsProp,
   historicalGdacsEvents: historicalGdacsProp,
+  layout = "standalone",
 }: IndiaMapCardProps) => {
   const [isMaximized, setIsMaximized] = useState(false);
   const eonet = normalizeEonetEvents(eonetProp ?? EMPTY_EONET_EVENTS);
@@ -114,24 +116,37 @@ export const IndiaMapCard = ({
     };
   }, [isMaximized]);
 
+  const embedded = layout === "embedded";
+  const sectionClass = isMaximized
+    ? "fixed inset-0 z-50 flex flex-col overflow-hidden bg-slate-950 p-4 sm:p-6"
+    : embedded
+      ? "dashboard-panel flex h-full min-h-[22rem] flex-col rounded-xl border border-slate-800/80 p-4 lg:min-h-[32rem]"
+      : "mx-auto mt-6 w-full max-w-3xl rounded-2xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-950";
+
   return (
     <section
-      className={
-        isMaximized
-          ? "fixed inset-0 z-50 flex flex-col overflow-hidden bg-white p-4 dark:bg-zinc-950 sm:p-6"
-          : "mx-auto mt-6 w-full max-w-3xl rounded-2xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-950"
-      }
+      className={sectionClass}
       aria-labelledby="india-map-heading"
     >
       <div className="flex shrink-0 items-start justify-between gap-4">
         <div className="min-w-0 flex-1">
           <h2
             id="india-map-heading"
-            className="text-xs font-medium uppercase tracking-wide text-zinc-500"
+            className={
+              embedded
+                ? "text-sm font-semibold text-slate-200"
+                : "text-xs font-medium uppercase tracking-wide text-zinc-500"
+            }
           >
             Operations map
           </h2>
-          <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+          <p
+            className={
+              embedded
+                ? "mt-0.5 text-xs text-slate-500"
+                : "mt-1 text-sm text-zinc-600 dark:text-zinc-400"
+            }
+          >
             {liveCount > 0
               ? `${liveCount} open disaster event${liveCount === 1 ? "" : "s"} in the region (NASA EONET + GDACS).`
               : "No open disaster events in the region right now. Data from NASA EONET & GDACS."}
@@ -146,7 +161,11 @@ export const IndiaMapCard = ({
           aria-label={isMaximized ? "Restore map size" : "Maximize map"}
           aria-expanded={isMaximized}
           aria-controls="india-map-container"
-          className="shrink-0 rounded-lg border border-zinc-300 p-2 text-zinc-700 transition hover:bg-zinc-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-500 dark:border-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-900"
+          className={
+            embedded
+              ? "shrink-0 rounded-lg border border-slate-700 p-2 text-slate-300 transition hover:bg-slate-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-500"
+              : "shrink-0 rounded-lg border border-zinc-300 p-2 text-zinc-700 transition hover:bg-zinc-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-500 dark:border-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-900"
+          }
         >
           {isMaximized ? <MinimizeIcon /> : <MaximizeIcon />}
         </button>
@@ -155,8 +174,10 @@ export const IndiaMapCard = ({
         id="india-map-container"
         className={
           isMaximized
-            ? "relative mt-4 min-h-0 flex-1 overflow-hidden rounded-xl border border-zinc-200 dark:border-zinc-800 [&_.leaflet-container]:rounded-xl"
-            : "relative mt-4 h-80 overflow-hidden rounded-xl border border-zinc-200 dark:border-zinc-800 [&_.leaflet-container]:rounded-xl"
+            ? "relative mt-4 min-h-0 flex-1 overflow-hidden rounded-xl border border-slate-800 [&_.leaflet-container]:rounded-xl"
+            : embedded
+              ? "relative mt-3 min-h-0 flex-1 overflow-hidden rounded-lg border border-slate-800 [&_.leaflet-container]:rounded-lg"
+              : "relative mt-4 h-80 overflow-hidden rounded-xl border border-zinc-200 dark:border-zinc-800 [&_.leaflet-container]:rounded-xl"
         }
       >
         <IndiaMap
@@ -166,8 +187,17 @@ export const IndiaMapCard = ({
           resizeSignal={isMaximized}
         />
       </div>
-      <MapLegend showHistorical={historicalCount > 0} />
-      <p className="mt-2 shrink-0 text-xs text-zinc-500 dark:text-zinc-500">
+      <MapLegend
+        showHistorical={historicalCount > 0}
+        variant={embedded ? "dark" : "light"}
+      />
+      <p
+        className={
+          embedded
+            ? "mt-2 shrink-0 text-[11px] text-slate-600"
+            : "mt-2 shrink-0 text-xs text-zinc-500 dark:text-zinc-500"
+        }
+      >
         Solid markers: live events. Dashed markers: historical GDACS (click to
         load affected area). Map panning is limited to India.
         {isMaximized ? " Press Escape to exit fullscreen." : ""}

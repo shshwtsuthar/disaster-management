@@ -1,27 +1,36 @@
 import { IndiaMapCard } from "@/components/IndiaMapCard";
-import { fetchEonetEvents, normalizeEonetEvents } from "@/lib/map/eonet";
-import {
-  fetchGdacsEvents,
-  filterIndiaEvents,
-  normalizeGdacsEvents,
-} from "@/lib/map/gdacs";
-import { loadHistoricalGdacsEvents } from "@/lib/map/load-historical-gdacs";
+import { fetchDashboardEvents } from "@/lib/dashboard/fetch-events";
+import type { EonetFeatureCollection } from "@/lib/map/eonet";
+import type { GdacsFeatureCollection } from "@/lib/map/gdacs";
 
-export const IndiaMapSection = async () => {
-  const [eonetRaw, gdacsRaw, historicalGdacsEvents] = await Promise.all([
-    fetchEonetEvents(),
-    fetchGdacsEvents(),
-    loadHistoricalGdacsEvents(),
-  ]);
+type IndiaMapSectionProps = {
+  eonetEvents?: EonetFeatureCollection;
+  gdacsEvents?: GdacsFeatureCollection;
+  historicalGdacsEvents?: GdacsFeatureCollection;
+  layout?: "standalone" | "embedded";
+};
 
-  const eonetEvents = normalizeEonetEvents(eonetRaw);
-  const gdacsEvents = filterIndiaEvents(normalizeGdacsEvents(gdacsRaw));
+export const IndiaMapSection = async ({
+  eonetEvents: eonetProp,
+  gdacsEvents: gdacsProp,
+  historicalGdacsEvents: historicalProp,
+  layout = "standalone",
+}: IndiaMapSectionProps = {}) => {
+  const events =
+    eonetProp && gdacsProp && historicalProp
+      ? {
+          eonetEvents: eonetProp,
+          gdacsEvents: gdacsProp,
+          historicalGdacsEvents: historicalProp,
+        }
+      : await fetchDashboardEvents();
 
   return (
     <IndiaMapCard
-      eonetEvents={eonetEvents}
-      gdacsEvents={gdacsEvents}
-      historicalGdacsEvents={historicalGdacsEvents}
+      eonetEvents={events.eonetEvents}
+      gdacsEvents={events.gdacsEvents}
+      historicalGdacsEvents={events.historicalGdacsEvents}
+      layout={layout}
     />
   );
 };

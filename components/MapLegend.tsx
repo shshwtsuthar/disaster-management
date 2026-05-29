@@ -13,12 +13,19 @@ const LEGEND_ITEMS: { id: EonetCategoryId; label: string }[] = [
 
 type MapLegendProps = {
   showHistorical?: boolean;
+  variant?: "light" | "dark";
 };
 
-export const MapLegend = ({ showHistorical = false }: MapLegendProps) => {
+export const MapLegend = ({
+  showHistorical = false,
+  variant = "light",
+}: MapLegendProps) => {
+  const textClass =
+    variant === "dark" ? "text-slate-500" : "text-zinc-600 dark:text-zinc-400";
+
   return (
     <ul
-      className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-xs text-zinc-600 dark:text-zinc-400"
+      className={`mt-3 flex flex-wrap gap-x-4 gap-y-2 text-xs ${textClass}`}
       aria-label="Disaster event categories"
     >
       {showHistorical ? (

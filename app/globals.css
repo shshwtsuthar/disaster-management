@@ -35,3 +35,32 @@ body {
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
 }
+
+.dashboard-ops-bg {
+  background-color: #020617;
+  background-image:
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(20, 184, 166, 0.12), transparent),
+    linear-gradient(rgba(148, 163, 184, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148, 163, 184, 0.04) 1px, transparent 1px);
+  background-size:
+    100% 100%,
+    24px 24px,
+    24px 24px;
+}
+
+.dashboard-panel {
+  background: linear-gradient(
+    165deg,
+    rgba(15, 23, 42, 0.92) 0%,
+    rgba(15, 23, 42, 0.72) 100%
+  );
+  backdrop-filter: blur(8px);
+}
+
+.dashboard-stat-card {
+  background: linear-gradient(
+    145deg,
+    rgba(15, 23, 42, 0.95) 0%,
+    rgba(30, 41, 59, 0.5) 100%
+  );
+}
